@@ -1,0 +1,16 @@
+find . -type f -name "*.js" -exec sed -i 's/shopAutomatedSmsTemplate/automatedSmsTemplate/g' {} +
+find . -type f -name "*.js" -exec sed -i 's/ShopAutomatedSmsTemplate/AutomatedSmsTemplate/g' {} +
+find . -type f -name "*.js" -exec sed -i 's/shopCampaignLog/campaignLog/g' {} +
+find . -type f -name "*.js" -exec sed -i 's/ShopCampaignLog/CampaignLog/g' {} +
+find . -type f -name "*.js" -exec sed -i 's/shopCampaign/campaign/g' {} +
+find . -type f -name "*.js" -exec sed -i 's/ShopCampaign/Campaign/g' {} +
+find . -type f -name "*.js" -exec sed -i 's/shopSmsJob/smsJob/g' {} +
+find . -type f -name "*.js" -exec sed -i 's/ShopSmsJob/SmsJob/g' {} +
+find . -type f -name "*.js" -exec sed -i 's/shopAudienceBuilder/audienceBuilder/g' {} +
+find . -type f -name "*.js" -exec sed -i 's/ShopAudienceBuilder/AudienceBuilder/g' {} +
+find . -type f -name "*.js" -exec sed -i 's/shopScheduler/scheduler/g' {} +
+find . -type f -name "*.js" -exec sed -i 's/ShopScheduler/Scheduler/g' {} +
+find . -type f -name "*.js" -exec sed -i 's/shopTransactionalSmsService/transactionalSmsService/g' {} +
+find . -type f -name "*.js" -exec sed -i 's/ShopTransactionalSmsService/TransactionalSmsService/g' {} +
+find . -type f -name "*.js" -exec sed -i 's/shopSms/sms/g' {} +
+find . -type f -name "*.js" -exec sed -i 's/ShopSms/Sms/g' {} +
