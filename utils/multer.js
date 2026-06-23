@@ -45,14 +45,9 @@ const getUploadPath = (fieldname) => {
     case fieldname.startsWith("childImage_") && fieldname:
       uploadPath += "services/children/";
       break;
-    //footer -> shop
-    case "brandImage":
+    //footer -> group
+    case "logo":
       uploadPath += "footer/costum/brandImage/";
-      break;
-    //footer -> shop -> symbol
-    case "standardSymbolImage":
-    case "trustSymbolImage":
-      uploadPath += "footer/costum/symbolImage/";
       break;
     //footer -> salon  
     case "barberBrandImage":

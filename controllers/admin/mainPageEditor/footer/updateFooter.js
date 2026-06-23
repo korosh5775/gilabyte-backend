@@ -1,4 +1,4 @@
-            const Footer = require("../../../../models/footerSchema");
+const Footer = require("../../../../models/footerSchema");
 const fs = require("fs");
 const path = require("path");
 
@@ -9,16 +9,14 @@ const updateFooter = async (req, res, next) => {
   console.log("--- updateFooter Request End ---");
 
   const {
-    shopName,
+      groupName,
       phoneNumber,
-      shopAddress,
-      shopDescription,
+      address,
+      description,
       socialMedia1,
       socialMedia2,
       socialMedia3,
       socialMedia4,
-      standardSymbolAddress,
-      trustSymbolAddress,
       deletedImages
   } = req.body;
 
@@ -30,14 +28,12 @@ const updateFooter = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-console.log("deletedImages", deletedImages)
+    console.log("deletedImages", deletedImages)
     // --- Start of image deletion and update logic ---
     const imagesToDelete = req.body.deletedImages ? JSON.parse(req.body.deletedImages) : [];
-    const imageFields = ["brandImage", "standardSymbolImage", "trustSymbolImage"];
+    const imageFields = ["logo"];
     const imageBasePaths = {
-        brandImage: path.join("footer", "costum", "brandImage"),
-        standardSymbolImage: path.join("footer", "costum", "symbolImage"),
-        trustSymbolImage: path.join("footer", "costum", "symbolImage")
+        logo: path.join("footer", "costum", "brandImage"),
     };
 
     const deleteImageFile = (imageField) => {
@@ -67,33 +63,22 @@ console.log("deletedImages", deletedImages)
     });
 
     // Process new uploads, deleting old file first if it exists
-    if (req.files?.brandImage) {
-        deleteImageFile("brandImage"); // Delete old image if exists
-        footer.brandImage = `/images/footer/costum/brandImage/${req.files.brandImage[0].filename}`;
+    if (req.files?.logo) {
+        deleteImageFile("logo"); // Delete old image if exists
+        footer.logo = `/images/footer/costum/brandImage/${req.files.logo[0].filename}`;
     }
 
-    if (req.files?.standardSymbolImage) {
-        deleteImageFile("standardSymbolImage"); // Delete old image if exists
-        footer.standardSymbolImage = `/images/footer/costum/symbolImage/${req.files.standardSymbolImage[0].filename}`;
-    }
-
-    if (req.files?.trustSymbolImage) {
-        deleteImageFile("trustSymbolImage"); // Delete old image if exists
-        footer.trustSymbolImage = `/images/footer/costum/symbolImage/${req.files.trustSymbolImage[0].filename}`;
-    }
     // --- End of image deletion and update logic ---
 
     // به‌روزرسانی سایر فیلدها
-    footer.shopName = shopName;
+    footer.groupName = groupName;
     footer.phoneNumber = phoneNumber;
-    footer.shopAddress = shopAddress;
-    footer.shopDescription = shopDescription;
+    footer.address = address;
+    footer.description = description;
     footer.socialMedia1 = socialMedia1;
     footer.socialMedia2 = socialMedia2;
     footer.socialMedia3 = socialMedia3;
     footer.socialMedia4 = socialMedia4;
-    footer.standardSymbolAddress = standardSymbolAddress;
-    footer.trustSymbolAddress = trustSymbolAddress;
     
 
     await footer.save();

@@ -1,6 +1,7 @@
 const Footer = require("../../../../models/footerSchema");
 
 const newFooter = async (req, res, next) => {
+  console.log("new footer called")
   try {
     const existingFooter = await Footer.findOne();
     if (existingFooter) {
@@ -10,42 +11,30 @@ const newFooter = async (req, res, next) => {
     }
 
     const {
-      shopName,
+      groupName,
       phoneNumber,
-      shopAddress,
-      shopDescription,
+      address,
+      description,
       socialMedia1,
       socialMedia2,
       socialMedia3,
       socialMedia4,
-      standardSymbolAddress,
-      trustSymbolAddress, 
     } = req.body;
 
-    if (!req.files?.brandImage || !req.files.brandImage[0]) {
-      const error = new Error("تصویر برند الزامی است");
-      error.statusCode = 400;
-      return next(error);
-    }
-
-    const brandImage = `/images/footer/costum/brandImage/${req.files.brandImage[0].filename}`;
-    const standardSymbolImage = `/images/footer/costum/symbolImage/${req.files.standardSymbolImage?.[0]?.filename || ""}`;
-    const trustSymbolImage = `/images/footer/costum/symbolImage/${req.files.trustSymbolImage?.[0]?.filename || ""}`;
+    const logo = (req.files?.logo && req.files.logo[0]) 
+      ? `/images/footer/costum/brandImage/${req.files.logo[0].filename}`
+      : null;
 
     const footer = await Footer.create({
-      brandImage,
-      shopName,
+      logo,
+      groupName,
       phoneNumber,
-      shopAddress,
-      shopDescription,
+      address,
+      description,
       socialMedia1,
       socialMedia2,
       socialMedia3,
       socialMedia4,
-      standardSymbolAddress,
-      trustSymbolAddress,
-      standardSymbolImage,
-      trustSymbolImage,
     });
 
     res.status(201).json(footer);
@@ -55,4 +44,3 @@ const newFooter = async (req, res, next) => {
 };
 
 module.exports = newFooter;
-

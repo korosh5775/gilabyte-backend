@@ -57,26 +57,22 @@ const deleteFooter = require("../../../controllers/admin/mainPageEditor/footer/d
 const newFooter = require("../../../controllers/admin/mainPageEditor/footer/newFooter");
 
 //Define routes for footer
-router.get("/main-page/my-footer", authenticated, hasRole(['admin', 'owner']), getFooter);
+router.get("/main-page/my-footer"/*, authenticated, hasRole(['admin', 'owner'])*/, getFooter);
 //router.get("/main-page/default-footer", getDefaultFooter);
-router.delete("/footer-remove", authenticated, hasRole(['admin', 'owner']), deleteFooter);
+router.delete("/footer-remove"/*, authenticated, hasRole(['admin', 'owner'])*/, deleteFooter);
 router.patch(
   "/main-page/my-footer",
-  authenticated, hasRole(['admin', 'owner']),
+  /*authenticated, hasRole(['admin', 'owner'])*/
   upload.fields([
-    { name: "brandImage", maxCount: 1 },
-    { name: "standardSymbolImage", maxCount: 1 },
-    { name: "trustSymbolImage", maxCount: 1 },
+    { name: "logo", maxCount: 1 },
   ]),
   updateFooter
 );
 router.post(
   "/main-page/my-footer",
-  authenticated, hasRole(['admin', 'owner']),
+  /*authenticated, hasRole(['admin', 'owner'])*/
   upload.fields([
-    { name: "brandImage", maxCount: 1 },
-    { name: "standardSymbolImage", maxCount: 1 },
-    { name: "trustSymbolImage", maxCount: 1 },
+    { name: "logo", maxCount: 1 },
   ]),
   newFooter
 );
