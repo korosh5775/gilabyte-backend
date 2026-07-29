@@ -6,7 +6,7 @@ const updateUserDetails = async (req, res, next) => {
     const phoneNumber = req.user.phoneNumber;
 
     // فقط اطلاعات مجاز رو از بدنه درخواست بگیر
-    const { fullName, province, city, address, postalCode, birthDate } = req.body;
+    const { fullName, birthDate } = req.body;
 
     const user = await User.findOne({ phoneNumber });
 
@@ -16,10 +16,7 @@ const updateUserDetails = async (req, res, next) => {
 
     // به‌روزرسانی فیلدها
     if (fullName) user.fullName = fullName;
-    if (province) user.province = province;
-    if (city) user.city = city;
-    if (address) user.address = address;
-    if (postalCode) user.postalCode = postalCode;
+
 
     // منطق محدودیت ویرایش تاریخ تولد
     if (birthDate) {
@@ -60,10 +57,6 @@ const updateUserDetails = async (req, res, next) => {
       user: {
         fullName: user.fullName,
         phoneNumber: user.phoneNumber,
-        province: user.province,
-        city: user.city,
-        address: user.address,
-        postalCode: user.postalCode,
         birthDate: user.birthDate,
       },
       token: newToken,

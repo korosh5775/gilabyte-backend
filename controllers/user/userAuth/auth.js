@@ -135,16 +135,20 @@ const verifyOtp = async (req, res, next) => {
       throw error;
     }
 
-    const storedOtpData = otpStore.get(phoneNumber);
-    if (
-      !storedOtpData ||
-      storedOtpData.code !== otp ||
-      Date.now() > storedOtpData.expiresAt
-    ) {
-      const error = new Error("کد تایید نامعتبر یا منقضی شده است.");
-      error.statusCode = 401;
-      throw error;
-    }
+const storedOtpData = otpStore.get(phoneNumber);
+
+if (!storedOtpData || String(storedOtpData.code).trim() !== String(otp).trim() || Date.now() > storedOtpData.expiresAt) {
+  
+  // +++ این لاگ را حتماً اضافه کنید +++
+  console.log(`❌ ارور تایید کد برای شماره ${phoneNumber}:`);
+  console.log(`- کدی که کاربر فرستاد: '${otp}'`);
+  console.log(`- کدی که در سرور بود: '${storedOtpData ? storedOtpData.code : "یافت نشد (احتمالا پاک شده)"}'`);
+  // +++++++++++++++++++++++++++++++++++++
+
+  const error = new Error("کد تایید نامعتبر یا منقضی شده است.");
+  error.statusCode = 401;
+  throw error;
+}
 
     // کاربر را با شماره تلفن پیدا کن
     let user = await User.findOne({ phoneNumber });
@@ -167,12 +171,16 @@ const verifyOtp = async (req, res, next) => {
       });
     }
 
+    console.log('در حال ساخت توکن')
+
     // ساخت توکن JWT مینیمال و امن
     const token = jwt.sign(
       { userId: user._id.toString() },
       process.env.JWT_SECRET,
       { expiresIn: "168h" }, // 7 روز
     );
+
+    console.log(' توکن ایجاد شد')
 
     // ===================================================================
     // ===== بخش کلیدی و جدید: فعال‌سازی پیامک خوش‌آمدگویی =====
@@ -184,6 +192,8 @@ const verifyOtp = async (req, res, next) => {
     // OTP استفاده شده را حذف کن
     otpStore.delete(phoneNumber);
 
+    console.log('توکن پاک شد')
+
     res.status(200).json({
       success: true,
       token,
@@ -194,6 +204,7 @@ const verifyOtp = async (req, res, next) => {
       },
     });
   } catch (err) {
+    console.log(err)
     next(err);
   }
 };
@@ -244,18 +255,18 @@ const sendAdminOtp = async (req, res, next) => {
 
     console.log("otp is: " + otp);
     // ارسال واقعی پیامک OTP برای ادمین
-    try {
-      await smsService.sendOtp(phoneNumber, otp);
-      console.log(`Admin OTP sent successfully to ${phoneNumber}`);
-    } catch (smsError) {
-      console.error(
-        `Failed to send Admin SMS to ${phoneNumber}:`,
-        smsError.message,
-      );
-      const error = new Error("خطا در ارسال پیامک سامانه ادمین.");
-      error.statusCode = 502;
-      throw error;
-    }
+    // try {
+    //   await smsService.sendOtp(phoneNumber, otp);
+    //   console.log(`Admin OTP sent successfully to ${phoneNumber}`);
+    // } catch (smsError) {
+    //   console.error(
+    //     `Failed to send Admin SMS to ${phoneNumber}:`,
+    //     smsError.message,
+    //   );
+    //   const error = new Error("خطا در ارسال پیامک سامانه ادمین.");
+    //   error.statusCode = 502;
+    //   throw error;
+    // }
 
     res
       .status(200)

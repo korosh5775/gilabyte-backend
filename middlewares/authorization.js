@@ -8,14 +8,24 @@ const authenticated = async (req, res, next) => {
     }
 
     try {
+        let token;
+        
+        // ابتدا بررسی Authorization Header
         const authHeader = req.get("Authorization");
-        if (!authHeader) {
-            const error = new Error("Authorization header missing.");
+        if (authHeader && authHeader.startsWith("Bearer ")) {
+            token = authHeader.split(" ")[1];
+        } 
+        // سپس بررسی کوکی‌ها اگر توکن در هدر نبود
+        else if (req.cookies && req.cookies.token) {
+            token = req.cookies.token;
+        }
+
+        if (!token) {
+            const error = new Error("Authorization failed. No token provided.");
             error.statusCode = 401;
             throw error;
         }
 
-        const token = authHeader.split(" ")[1];
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
         if (!decodedToken || !decodedToken.userId) {

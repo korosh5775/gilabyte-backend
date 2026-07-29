@@ -9,6 +9,7 @@ const indexRoutes = require("./routes/index"); // Import the main application ro
 const bodyParser = require("body-parser"); // Import body-parser middleware for parsing request bodies
 require("./utils/connection"); // Establish database connection
 const errorHandler = require('./middlewares/errorrHandler');
+const cookieParser = require("cookie-parser"); // Import cookie-parser
 
 // Import Shop SMS Services
 const { runScheduledCampaigns } = require('./services/scheduler.service');
@@ -32,16 +33,20 @@ const app = express();
 const allowedOrigins = [
   'https://selesao.ir',
   'http://selesao.ir',
-  'http://10.67.69.13:8000',
-  'http://10.67.69.13:3000',
+  'http://10.31.27.13:8000',
+  'http://10.31.27.13:3000',
   'http://localhost:5173',
+    'http://localhost:3000',
+
+  'http://10.17.75.13:3000',
   process.env.FRONTEND_URL,
   // در محیط پروداکشن، لوکال‌هاست را حذف می‌کنیم
   ...(process.env.NODE_ENV !== 'production' ? [
     'http://localhost:3000', 
     'http://localhost:8000',
     'http://localhost:5173', // پورت پیش‌فرض Vite/React-Router
-    'http://localhost:5174'
+    'http://localhost:5174',
+    'http://10.17.75.13:3000'
   ] : [])
 ].filter(Boolean);
 
@@ -58,6 +63,7 @@ app.use(cors({
 }));
 
 app.use(bodyParser.json()); // Parse JSON request bodies
+app.use(cookieParser()); // Parse cookies
 
 // Define static folder for images
 app.use("/images", express.static(path.join(__dirname, "images")));

@@ -44,7 +44,11 @@ const getFooter = require("../../../controllers/user/footer/getFooter");
 // Define routes for footer
 router.get("/footer", getFooter);
 
+const  getServices = require( '../../../controllers/user/services/getServices');
+const getServiceBySlug =require('../../../controllers/user/services/getServiceBySlug') ;
 
+router.get('/services', getServices);
+router.get('/services/:slug', getServiceBySlug);
 
 
 

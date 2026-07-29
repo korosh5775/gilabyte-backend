@@ -27,10 +27,6 @@ const UserSchema = mongoose.Schema({
     },
 
 
-    province: { type: String },
-    city: { type: String },
-    address: { type: String },
-    postalCode: { type: String }, // بهتر است از نوع String باشد تا صفرهای اول آن حذف نشود
     birthDate: { type: Date }, // تاریخ تولد کاربر (اختیاری)
     birthDateUpdatesCount: { type: Number, default: 0 }, // شمارنده تعداد دفعات ویرایش تاریخ تولد
 
