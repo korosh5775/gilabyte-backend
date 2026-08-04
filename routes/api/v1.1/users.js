@@ -52,6 +52,11 @@ router.get('/services/:slug', getServiceBySlug);
 
 
 
+const createOrder = require('../../../controllers/user/orders/createOrder');
+
+// این روت عمومی است چون هر کسی که وارد سایت می‌شود باید بتواند فرم را پر کند
+router.post('/orders', authenticated, createOrder);
+
 
 // Export the router
 // ------------------------------------------------

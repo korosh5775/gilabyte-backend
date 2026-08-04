@@ -7,7 +7,7 @@ const updateService = async (req, res, next) => {
     const { id } = req.params;
     const { 
       title, slug, shortDescription, headerTitle, 
-      headerSubtitle, installmentConfig, plans, isActive 
+      headerSubtitle, paymentTerms, plans, isActive , showOnHomePage
     } = req.body;
 
     const service = await Service.findById(id);
@@ -35,10 +35,10 @@ const updateService = async (req, res, next) => {
       }
     }
 
-    let parsedInstallmentConfig = service.installmentConfig;
+    let parsedpaymentTerms = service.paymentTerms;
     let parsedPlans = service.plans;
     try {
-      if (installmentConfig) parsedInstallmentConfig = JSON.parse(installmentConfig);
+      if (paymentTerms) parsedpaymentTerms = JSON.parse(paymentTerms);
       if (plans) parsedPlans = JSON.parse(plans);
     } catch (parseError) {
       const error = new Error("فرمت دیتای فرم نامعتبر است.");
@@ -52,10 +52,12 @@ const updateService = async (req, res, next) => {
     service.headerTitle = headerTitle || service.headerTitle;
     service.headerSubtitle = headerSubtitle || service.headerSubtitle;
     service.thumbnailUrl = newThumbnailUrl;
-    service.installmentConfig = parsedInstallmentConfig;
+    service.paymentTerms = parsedpaymentTerms;
     service.plans = parsedPlans;
     if (isActive !== undefined) service.isActive = isActive === 'true' || isActive === true;
-
+if (showOnHomePage !== undefined) {
+  service.showOnHomePage = showOnHomePage === 'true' || showOnHomePage === true;
+}
     const updatedService = await service.save();
 
     return res.status(200).json({ 

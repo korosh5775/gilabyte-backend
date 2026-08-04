@@ -13,10 +13,17 @@ const authenticated = require("../../../middlewares/authorization"); // Authenti
 const {getTime} = require("../../../controllers/shared/utils/getTime");
 router.get("/get-time",  getTime);
 
-// Create an Express router
-// ------------------------------------------------
+// =========================================================================
+// ====================     Portfolios & Clients     =======================
+// =========================================================================
+const getPortfolios = require("../../../controllers/shared/portfolio/getPortfolios");
+
+// دریافت همگی نمونه‌کارها / مشتریان
+router.get("/portfolio", getPortfolios);
 
 
+const getAbout = require("../../../controllers/shared/about/getAbout");
+router.get("/about", getAbout);
 
 module.exports = router;
  

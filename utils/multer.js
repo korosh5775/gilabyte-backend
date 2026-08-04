@@ -7,6 +7,12 @@ const sharp = require("sharp");
 const getUploadPath = (fieldname) => {
   let uploadPath = "./images/";
 
+    // 🟢 هندل کردن داینامیک عکس‌های تیم قبل از switch
+  if (fieldname.startsWith("teamImage_")) {
+    return uploadPath + "about/team/";
+  }
+
+
   switch (fieldname) {
     case "sliderImageOne":
     case "sliderImageTwo":
@@ -19,6 +25,13 @@ const getUploadPath = (fieldname) => {
     // -----> مسیر جدید برای عکس کارت خدمات <-----
     case "serviceThumbnail":
       uploadPath += "services/thumbnails/";
+      break;
+    // -----> مسیر جدید برای عکس‌های نمونه‌کار و مشتریان <-----
+    case "portfolioImage":
+      uploadPath += "portfolios/";
+      break;
+    case "founderImage":
+      uploadPath += "about/founder/";
       break;
     default:
       uploadPath += "others/";
@@ -47,7 +60,7 @@ class SharpStorage {
       const filename = file.fieldname + "-" + uniqueSuffix + ext;
       const finalPath = path.join(dir, filename);
 
-      const transformer = sharp();
+      const transformer = sharp().rotate();;
       transformer.resize({ width: 1920, withoutEnlargement: true });
 
       if (ext === '.png') {

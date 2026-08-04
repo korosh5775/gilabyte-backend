@@ -53,6 +53,14 @@ const planSchema = new mongoose.Schema({
   
   // مخاطب هدف این پلن (مثلاً: "مناسب برای رشد و فروش بیشتر")
   targetAudience: { type: String },
+
+   // 🟢 آرایه شرایط پرداخت و اقساط (منتقل شد به داخل پلن)
+  paymentTerms: [
+    {
+      months: { type: Number, required: true },  
+      percent: { type: Number, required: true }  
+    }
+  ],
   
   // آرایه‌ای از ویژگی‌های این پلن که از featureSchema بالا استفاده می‌کند
   featuresData: [featureSchema] 
@@ -108,33 +116,14 @@ const serviceSchema = new mongoose.Schema({
   // زیرتیتر داخل صفحه اختصاصی (مثلاً: "تکنولوژی مدرن React فراتر از وردپرس")
   headerSubtitle: { type: String },
   
-  // ---------------- ماشین حساب اقساط ----------------
-  installmentConfig: {
-    // چند درصد تخفیف برای پرداخت نقدی اعمال شود؟ (مثلاً 4)
-    cashDiscountPercent: { type: Number, default: 4 },      
-    
-    // چند درصد از کل مبلغ باید همان ابتدا به عنوان پیش‌پرداخت داده شود؟ (مثلاً 25)
-    prepaymentPercent: { type: Number, default: 25 },       
-    
-    // کاربر تا چند ماه می‌تواند بدون سود و کارمزد قسط بدهد؟ (مثلاً 4 ماه)
-    interestFreeMonths: { type: Number, default: 4 },       
-    
-    // آرایه‌ای برای اقساط بلندمدت که ادمین به صورت داینامیک تنظیم می‌کند
-    extendedTerms: [
-      {
-        minMonths: { type: Number, required: true },    // شروع بازه (مثلاً 5)
-        maxMonths: { type: Number, required: true },    // پایان بازه (مثلاً 6)
-        interestPercent: { type: Number, required: true } // درصد کارمزد برای این بازه (مثلاً 10)
-      }
-    ]
-  },
-  // ------------------------------------------------
-
+ 
   // آرایه‌ای از پلن‌های قیمت‌گذاری (استاندارد، پیشرفته، و ...)
   plans: [planSchema],
   
   // وضعیت فعال بودن خدمت. اگر false باشد در سایت به کاربران نمایش داده نمی‌شود (بدون نیاز به حذف کامل)
-  isActive: { type: Boolean, default: true }
+  isActive: { type: Boolean, default: true } ,
+     // آیا این خدمت در ۳ تای اول صفحه اصلی نمایش داده شود؟
+  showOnHomePage: { type: Boolean, default: false },
 
 }, { 
   // ایجاد خودکار فیلدهای createdAt و updatedAt توسط Mongoose

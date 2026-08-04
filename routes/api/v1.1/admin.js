@@ -111,4 +111,82 @@ router.delete(
   deleteService
 );
 
+
+
+
+const getOrders = require('../../../controllers/admin/orders/getOrders');
+const updateOrderStatus = require('../../../controllers/admin/orders/updateOrderStatus');
+
+// روت‌های مربوط به سفارشات
+router.get('/orders', authenticated, hasRole(['admin', 'owner']), getOrders);
+router.patch('/orders/:orderId/status', authenticated, hasRole(['admin', 'owner']), updateOrderStatus);
+
+// =========================================================================
+// ====================     Portfolios & Clients     =======================
+// =========================================================================
+const swapPortfolioOrder = require("../../../controllers/admin/portfolio/swapPortfolioOrder");
+const createPortfolio = require("../../../controllers/admin/portfolio/createPortfolio");
+const getPortfolioById = require("../../../controllers/admin/portfolio/getPortfolioById");
+const updatePortfolio = require("../../../controllers/admin/portfolio/updatePortfolio");
+const deletePortfolio = require("../../../controllers/admin/portfolio/deletePortfolio");
+// جابجایی ترتیب دو نمونه‌کار
+router.patch(
+  "/portfolio/swap-order",
+  authenticated,
+  hasRole(["admin", "owner"]),
+  swapPortfolioOrder
+);
+
+// ایجاد نمونه‌کار / مشتری جدید (همراه با عکس)
+router.post(
+  "/portfolio",
+  authenticated,
+  hasRole(["admin", "owner"]),
+  upload.fields([{ name: "portfolioImage", maxCount: 1 }]),
+  handleError,
+  createPortfolio
+);
+
+// دریافت تکی یک نمونه‌کار / مشتری با شناسه ID
+router.get(
+  "/portfolio/:id",
+  authenticated,
+  hasRole(["admin", "owner"]),
+  getPortfolioById
+);
+
+// ویرایش نمونه‌کار / مشتری (عکس اختیاری است)
+router.patch(
+  "/portfolio/:id",
+  authenticated,
+  hasRole(["admin", "owner"]),
+  upload.fields([{ name: "portfolioImage", maxCount: 1 }]),
+  handleError,
+  updatePortfolio
+);
+
+// حذف نمونه‌کار / مشتری
+router.delete(
+  "/portfolio/:id",
+  authenticated,
+  hasRole(["admin", "owner"]),
+  deletePortfolio
+);
+
+
+
+const updateAbout = require("../../../controllers/admin/about/updateAbout");
+
+
+router.patch('/update-about', authenticated, hasRole(['admin', 'owner']),
+   upload.fields([
+    { name: 'founderImage', maxCount: 1 },
+    { name: 'teamImage_0', maxCount: 1 },
+    { name: 'teamImage_1', maxCount: 1 },
+    { name: 'teamImage_2', maxCount: 1 },
+    { name: 'teamImage_3', maxCount: 1 },
+    { name: 'teamImage_4', maxCount: 1 },
+    // تا هر چندتا که دوست دارید میتونید بنویسید
+  ]),handleError,  updateAbout);
+
 module.exports = router;

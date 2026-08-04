@@ -5,7 +5,7 @@ const getServices = async (req, res, next) => {
     // گرفتن تمام خدماتی که isActive آنها true است (خدمات مخفی شده را نمی‌آوریم)
     // با استفاده از select فقط فیلدهای مورد نیاز کارت صفحه اصلی را می‌گیریم تا API فوق‌العاده سریع (Fast) باشد
     const services = await Service.find({ isActive: true })
-      .select("title slug shortDescription thumbnailUrl createdAt")
+      .select("title slug shortDescription thumbnailUrl showOnHomePage createdAt")
       .sort({ createdAt: -1 }); // مرتب‌سازی بر اساس جدیدترین
 
     if (!services) {
