@@ -25,5 +25,8 @@ router.get("/portfolio", getPortfolios);
 const getAbout = require("../../../controllers/shared/about/getAbout");
 router.get("/about", getAbout);
 
+const getBanner = require("../../../controllers/shared/banner/getBanner")
+router.get('/banner', getBanner);
+
 module.exports = router;
  

@@ -33,6 +33,10 @@ const getUploadPath = (fieldname) => {
     case "founderImage":
       uploadPath += "about/founder/";
       break;
+      case "bannerImageLight":
+    case "bannerImageDark":
+      uploadPath += "banner/";
+      break;
     default:
       uploadPath += "others/";
   }

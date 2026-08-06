@@ -189,4 +189,19 @@ router.patch('/update-about', authenticated, hasRole(['admin', 'owner']),
     // تا هر چندتا که دوست دارید میتونید بنویسید
   ]),handleError,  updateAbout);
 
+
+const updateBanner = require("../../../controllers/admin/banner/updateBanner")
+
+  router.patch(
+  '/banner', 
+  authenticated, 
+  hasRole(['admin', 'owner']), 
+  upload.fields([
+    { name: 'bannerImageLight', maxCount: 1 },
+    { name: 'bannerImageDark', maxCount: 1 }
+  ]), 
+  handleError, 
+  updateBanner
+);
+
 module.exports = router;
