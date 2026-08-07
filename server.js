@@ -10,6 +10,8 @@ const bodyParser = require("body-parser"); // Import body-parser middleware for 
 require("./utils/connection"); // Establish database connection
 const errorHandler = require('./middlewares/errorrHandler');
 const cookieParser = require("cookie-parser"); // Import cookie-parser
+const http = require("http");
+const { Server } = require("socket.io");
 
 // Import Shop SMS Services
 const { runScheduledCampaigns } = require('./services/scheduler.service');
@@ -28,6 +30,8 @@ if (process.env.NODE_ENV === 'production') {
 // Create an Express application instance
 // ------------------------------------------------
 const app = express();
+const server = http.createServer(app); // 🟢 سوکت نیاز به سرور خام http دارد
+
 
 // تعریف لیست دامنه‌های مجاز
 const allowedOrigins = [
@@ -49,6 +53,43 @@ const allowedOrigins = [
     'http://10.17.75.13:3000'
   ] : [])
 ].filter(Boolean);
+
+// 🟢 راه‌اندازی Socket.io
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins, // دامنه‌های مجاز شما
+    methods: ["GET", "POST", "PATCH"],
+    credentials: true
+  }
+});
+
+// 🟢 تنظیم رویدادهای سوکت
+io.on("connection", (socket) => {
+  console.log("🟢 یک کاربر متصل شد:", socket.id);
+
+  // ۱. وقتی کاربر (یا ادمین) وارد یک صفحه تیکت خاص می‌شود، او را به یک Room با نام آن تیکت می‌بریم
+  socket.on("joinTicketRoom", (ticketId) => {
+    socket.join(ticketId);
+    console.log(`کاربر به اتاق تیکت ${ticketId} پیوست`);
+  });
+
+  // ۲. وقتی کاربر از صفحه تیکت خارج می‌شود
+  socket.on("leaveTicketRoom", (ticketId) => {
+    socket.leave(ticketId);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("🔴 کاربر قطع اتصال شد");
+  });
+});
+
+// 🟢 پاس دادن آبجکت io به ریکوئست‌ها تا در کنترلرها بتوانیم به آن دسترسی داشته باشیم
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
+
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -95,6 +136,7 @@ cron.schedule('* * * * *', () => {
 const port = process.env.PORT || 3000; // Use port from environment variable or default to 3000
 // Start the server
 // ------------------------------------------------
-app.listen(port, '0.0.0.0', () => {
+// 🟢 حتماً به جای app.listen از server.listen استفاده کنید
+server.listen(port, '0.0.0.0', () => {
   console.log(`app is running on ${port}`);
 });

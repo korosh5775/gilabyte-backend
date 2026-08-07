@@ -190,7 +190,8 @@ router.patch('/update-about', authenticated, hasRole(['admin', 'owner']),
   ]),handleError,  updateAbout);
 
 
-const updateBanner = require("../../../controllers/admin/banner/updateBanner")
+const updateBanner = require("../../../controllers/admin/banner/updateBanner");
+
 
   router.patch(
   '/banner', 
@@ -203,5 +204,18 @@ const updateBanner = require("../../../controllers/admin/banner/updateBanner")
   handleError, 
   updateBanner
 );
+
+
+const getAllTickets = require("../../../controllers/admin/tickets/getAllTickets");
+const getAdminSingleTicket = require("../../../controllers/admin/tickets/getAdminSingleTicket");
+const replyTicketAdmin = require("../../../controllers/admin/tickets/replyTicketAdmin");
+const toggleTicketStatus = require("../../../controllers/admin/tickets/toggleTicketStatus");
+
+
+
+router.get('/tickets', authenticated, hasRole(['admin', 'owner']), getAllTickets);
+router.get('/tickets/:ticketId', authenticated, hasRole(['admin', 'owner']), getAdminSingleTicket);
+router.post('/tickets/:ticketId/reply', authenticated, hasRole(['admin', 'owner']), replyTicketAdmin);
+router.patch('/tickets/:ticketId/status', authenticated, hasRole(['admin', 'owner']), toggleTicketStatus);
 
 module.exports = router;
