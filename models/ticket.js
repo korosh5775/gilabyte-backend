@@ -40,6 +40,10 @@ const ticketSchema = new mongoose.Schema({
     type: Boolean, 
     default: false 
   },
+  hasUnreadUserMessage: {  // 👈 این فیلد اضافه شد
+    type: Boolean, 
+    default: false 
+  },
   messages: [messageSchema] // آرایه‌ای از پیام‌ها
 }, { timestamps: true }); // تاریخ ایجاد تیکت و آخرین تغییر وضعیت (updatedAt) را ثبت می‌کند
 

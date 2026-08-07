@@ -14,21 +14,22 @@ const replyTicketAdmin = async (req, res, next) => {
     ticket.messages.push(newMessage);
 
     ticket.status = 'answered'; 
-    ticket.hasUnreadUserMessage = true;   // کاربر باید این رو بخونه
-    ticket.hasUnreadAdminMessage = false; // ادمین خودش پیام داده
+    ticket.hasUnreadUserMessage = true;  // 🔴 ثبت پیام خوانده‌نشده برای کاربر
+    ticket.hasUnreadAdminMessage = false; 
     await ticket.save();
 
-    console.log(`🚀 [Backend] شلیک پیام زنده به اتاق تیکت: ${ticketId}`);
-    // ۱. این کد پیام رو به داخل صفحه چت می‌فرسته (توجه کنید به .to(ticketId) )
-    req.io.to(ticketId).emit("newMessage", newMessage);
+    const savedMessage = ticket.messages[ticket.messages.length - 1];
+
+    // ۱. ارسال پیام زنده به داخل اتاق چت
+    req.io.to(ticketId).emit("newMessage", savedMessage);
     
-    console.log(`🚀 [Backend] شلیک نوتیفیکیشن کلی برای روشن شدن بجِ کاربر: ${ticket.userId}`);
-    // ۲. این کد باعث روشن شدن بج (پاکت نامه) میشه
-    req.io.emit("new_ticket_reply", { userId: ticket.userId });
+    // 🟢 ۲. ارسال ticketId به همراه userId برای آپدیت دقیق لیست و بج پاکت نامه
+    req.io.emit("new_ticket_reply", { userId: ticket.userId, ticketId: ticket._id });
 
     return res.status(200).json({ success: true, message: "پاسخ ارسال شد.", data: ticket });
   } catch (error) {
     next(error);
   }
 };
+
 module.exports = replyTicketAdmin;

@@ -5,10 +5,9 @@ const getUserTickets = async (req, res, next) => {
   try {
     const userId = req.user._id;
 
-    // نیازی به populate نیست، چون کاربر خودش می‌داند کیست!
-    // فقط فیلدهای ضروری را می‌فرستیم تا API سبک بماند
+    // 🟢 اضافه شدن hasUnreadUserMessage به لیست فیلدهای انتخابی
     const tickets = await Ticket.find({ userId })
-      .select("subject status updatedAt") 
+      .select("subject status hasUnreadUserMessage updatedAt") 
       .sort({ updatedAt: -1 });
 
     return res.status(200).json({ success: true, data: tickets });
@@ -16,4 +15,5 @@ const getUserTickets = async (req, res, next) => {
     next(error);
   }
 };
+
 module.exports = getUserTickets;

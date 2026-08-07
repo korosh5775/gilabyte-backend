@@ -1,8 +1,9 @@
 const User = require('../../../models/usersSchema');
+const Ticket = require('../../../models/ticket'); // 🟢 ایمپورت مدل تیکت
 
 const getUserDetails = async (req, res, next) => {
   try {
-    const phoneNumber = req.user.phoneNumber; // از توکن استخراج‌شده
+    const phoneNumber = req.user.phoneNumber;
     const user = await User.findOne({ phoneNumber }).select("-__v -password");
 
     if (!user) {
@@ -11,11 +12,20 @@ const getUserDetails = async (req, res, next) => {
       throw error;
     }
 
-    res.json(user);
+    // 🟢 بررسی سریع وجود پیام خوانده‌نشده برای کاربر (بسیار بهینه با exists)
+    const hasUnreadUserMessage = await Ticket.exists({
+      userId: user._id,
+      hasUnreadUserMessage: true
+    });
+
+    // 🟢 ارسال اطلاعات کاربر همراه وضعیت پیام‌های خوانده نشده
+    res.json({
+      ...user.toObject(),
+      hasUnreadUserMessage: Boolean(hasUnreadUserMessage)
+    });
   } catch (error) {
     next(error);
   }
 };
-
 
 module.exports = getUserDetails;

@@ -70,8 +70,7 @@ io.on("connection", (socket) => {
   // ۱. وقتی کاربر (یا ادمین) وارد یک صفحه تیکت خاص می‌شود، او را به یک Room با نام آن تیکت می‌بریم
   socket.on("joinTicketRoom", (ticketId) => {
     socket.join(ticketId);
-    console.log(`کاربر به اتاق تیکت ${ticketId} پیوست`);
-  });
+console.log(`📌 [Socket Server] کلاینت ${socket.id} وارد اتاق تیکت شد:`, String(ticketId));  });
 
   // ۲. وقتی کاربر از صفحه تیکت خارج می‌شود
   socket.on("leaveTicketRoom", (ticketId) => {
