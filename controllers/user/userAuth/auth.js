@@ -74,18 +74,18 @@ const sendOtp = async (req, res, next) => {
       lowerCaseAlphabets: false,
       specialChars: false,
     });
-    
+     
     // ۳- ارسال پیامک (قبل از ذخیره در سرور)
-    // try {
-    //   await smsService.sendOtp(phoneNumber, otp);
-    //   console.log(`OTP sent successfully to ${phoneNumber}: ${otp}`);
-    // } catch (smsError) {
-    //   // اگر ارسال پیامک شکست خورد، هیچ کدی در otpStore ذخیره نمی‌شود
-    //   console.error(`Failed to send SMS to ${phoneNumber}:`, smsError.message);
-    //   const error = new Error("خطا در ارسال پیامک سامانه. لطفاً دوباره تلاش کنید.");
-    //   error.statusCode = 502;
-    //   throw error;
-    // }
+    try {
+      await smsService.sendOtp(phoneNumber, otp);
+      console.log(`OTP sent successfully to ${phoneNumber}: ${otp}`);
+    } catch (smsError) {
+      // اگر ارسال پیامک شکست خورد، هیچ کدی در otpStore ذخیره نمی‌شود
+      console.error(`Failed to send SMS to ${phoneNumber}:`, smsError.message);
+      const error = new Error("خطا در ارسال پیامک سامانه. لطفاً دوباره تلاش کنید.");
+      error.statusCode = 502;
+      throw error;
+    }
 
     console.log(`otp is ${otp}`)
 
