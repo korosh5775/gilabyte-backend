@@ -281,7 +281,7 @@ const sendAdminOtp = async (req, res, next) => {
 
 /**
  * @desc    تایید OTP فقط برای ورود ادمین.
- * @route   POST admin/auth/verify-admin-otp
+ * @route   POST users/auth/verify-admin-otp
  * @body    phoneNumber (string), otp (string)
  */
 const verifyAdminOtp = async (req, res, next) => {
@@ -294,17 +294,19 @@ const verifyAdminOtp = async (req, res, next) => {
       throw error;
     }
 
-    // ۱. تایید کد OTP از حافظه موقت
-    const storedOtpData = otpStore.get(phoneNumber);
-    if (
-      !storedOtpData ||
-      storedOtpData.code !== otp ||
-      Date.now() > storedOtpData.expiresAt
-    ) {
-      const error = new Error("کد تایید نامعتبر یا منقضی شده است.");
-      error.statusCode = 401; // Unauthorized
-      throw error;
-    }
+// ۱. تایید کد OTP از حافظه موقت
+const storedOtpData = otpStore.get(phoneNumber);
+
+// 🟢 تغییر مهم اینجاست: هر دو طرف را با String() به رشته تبدیل کردیم
+if (
+  !storedOtpData ||
+  String(storedOtpData.code) !== String(otp) || 
+  Date.now() > storedOtpData.expiresAt
+) {
+  const error = new Error("کد تایید نامعتبر یا منقضی شده است.");
+  error.statusCode = 401; // Unauthorized
+  throw error;
+}
 
     // ۲. پیدا کردن کاربر در دیتابیس
     let user = await User.findOne({ phoneNumber });
