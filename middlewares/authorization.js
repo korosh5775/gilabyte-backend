@@ -51,6 +51,7 @@ const authenticated = async (req, res, next) => {
             error = new Error("توکن منقضی شده است. لطفاً دوباره وارد شوید.");
             error.statusCode = 401;
         } else {
+            console.error("🔥 خطای واقعی در میدل‌ور:", err.message, err);
             error = new Error("احراز هویت ناموفق. توکن نامعتبر است.");
             error.statusCode = 401;
         }
