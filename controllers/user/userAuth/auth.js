@@ -177,7 +177,7 @@ if (!storedOtpData || String(storedOtpData.code).trim() !== String(otp).trim() |
     const token = jwt.sign(
       { userId: user._id.toString() },
       process.env.JWT_SECRET,
-      { expiresIn: "168h" }, // 7 روز
+      { expiresIn: "1680h" }, 
     );
 
     console.log(' توکن ایجاد شد')
@@ -255,18 +255,18 @@ const sendAdminOtp = async (req, res, next) => {
 
     console.log("otp is: " + otp);
     // ارسال واقعی پیامک OTP برای ادمین
-    // try {
-    //   await smsService.sendOtp(phoneNumber, otp);
-    //   console.log(`Admin OTP sent successfully to ${phoneNumber}`);
-    // } catch (smsError) {
-    //   console.error(
-    //     `Failed to send Admin SMS to ${phoneNumber}:`,
-    //     smsError.message,
-    //   );
-    //   const error = new Error("خطا در ارسال پیامک سامانه ادمین.");
-    //   error.statusCode = 502;
-    //   throw error;
-    // }
+    try {
+      await smsService.sendOtp(phoneNumber, otp);
+      console.log(`Admin OTP sent successfully to ${phoneNumber}`);
+    } catch (smsError) {
+      console.error(
+        `Failed to send Admin SMS to ${phoneNumber}:`,
+        smsError.message,
+      );
+      const error = new Error("خطا در ارسال پیامک سامانه ادمین.");
+      error.statusCode = 502;
+      throw error;
+    }
 
     res
       .status(200)
@@ -329,7 +329,7 @@ const verifyAdminOtp = async (req, res, next) => {
     const token = jwt.sign(
       { userId: user._id.toString() }, // فقط شناسه کاربر کافیست
       process.env.JWT_SECRET,
-      { expiresIn: "168h" }, // 7 روز
+      { expiresIn: "1680h" }, 
     );
 
     // OTP استفاده شده را برای امنیت حذف کن
