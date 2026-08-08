@@ -20,12 +20,12 @@ const { processSmsQueue } = require('./services/sms.worker');
 const cors = require("cors");
 
 //نادیده گرفتن لاگ های تعریف شده در محیط پروداکشن
-if (process.env.NODE_ENV === 'production') {
-  console.log = function () {};
-  console.info = function () {};
-  console.warn = function () {};
-  // console.error را نگه می‌داریم تا خطاهای بحرانی در لاگ‌های PM2 ثبت شوند
-}
+// if (process.env.NODE_ENV === 'production') {
+//   console.log = function () {};
+//   console.info = function () {};
+//   console.warn = function () {};
+//   // console.error را نگه می‌داریم تا خطاهای بحرانی در لاگ‌های PM2 ثبت شوند
+// }
 
 // Create an Express application instance
 // ------------------------------------------------
