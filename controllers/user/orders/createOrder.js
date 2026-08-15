@@ -33,7 +33,10 @@ const createOrder = async (req, res, next) => {
       await existingOrder.save();
 
       // (اختیاری) کد ارسال پیامک به ادمین برای آپدیت سفارش
-
+      const { triggerSmsEvent } = require("../../../../utils/smsEventTrigger");
+      const adminPhone = process.env.ADMIN_PHONE_NUMBER || "09120000000";
+      triggerSmsEvent("UPDATE_ORDER_USER", user.phoneNumber, { serviceTitle, planName });
+      triggerSmsEvent("UPDATE_ORDER_ADMIN", adminPhone, { serviceTitle, fullName: user.fullName });
       return res.status(200).json({
         success: true,
         message: "درخواست شما بروزرسانی شد. پلن جدید جایگزین درخواست قبلیِ شما برای این خدمت گردید.",
@@ -57,7 +60,10 @@ const createOrder = async (req, res, next) => {
       });
 
       // (اختیاری) کد ارسال پیامک به ادمین برای سفارش جدید
-
+      const { triggerSmsEvent } = require("../../../../utils/smsEventTrigger");
+      const adminPhone = process.env.ADMIN_PHONE_NUMBER || "09120000000";
+      triggerSmsEvent("NEW_ORDER_USER", user.phoneNumber, { serviceTitle, planName });
+      triggerSmsEvent("NEW_ORDER_ADMIN", adminPhone, { serviceTitle, fullName: user.fullName });
       return res.status(201).json({
         success: true,
         message: "درخواست شما با موفقیت ثبت شد. به زودی برای مشاوره تماس می‌گیریم.",

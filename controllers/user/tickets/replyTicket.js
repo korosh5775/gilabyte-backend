@@ -41,12 +41,16 @@ const replyTicket = async (req, res, next) => {
     if (req.io) {
       req.io.to(stringTicketId).emit("newMessage", savedMessage);
       
-      // اگر ادمین در روم نیست، رویداد بج را هم شلیک کن
       if (!isAdminInRoom) {
         req.io.emit("new_user_message", { 
           userId: ticket.userId, 
           ticketId: stringTicketId 
         });
+
+        // 🟢 ارسال پیامک به ادمین در صورت عدم حضور در چت
+        const { triggerSmsEvent } = require("../../../../utils/smsEventTrigger");
+        const adminPhone = process.env.ADMIN_PHONE_NUMBER || "09120000000";
+        triggerSmsEvent("TICKET_REPLY_ADMIN", adminPhone, { ticketId: stringTicketId });
       }
     }
 

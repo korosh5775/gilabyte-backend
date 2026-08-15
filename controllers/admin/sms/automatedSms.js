@@ -25,7 +25,7 @@ const defaultTemplates = {
         template: 'سفارش جدید ثبت شد! سفارش: [OrderId] مشتری: [CustomerFullName] مبلغ: [TotalPrice] تومان لینک پنل: [AdminPanelUrl]',
     },
 };
-
+ 
 
 /**
  * @desc    دریافت لیست تمام قالب‌های فروشگاه. اگر قالبی وجود نداشت، آن را با مقادیر پیش‌فرض می‌سازد.

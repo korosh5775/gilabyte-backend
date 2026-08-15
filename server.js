@@ -14,8 +14,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 
 // Import Shop SMS Services
-const { runScheduledCampaigns } = require('./services/scheduler.service');
-const { processSmsQueue } = require('./services/sms.worker');
+// Removed legacy campaign/worker imports
 
 const cors = require("cors");
 
@@ -113,21 +112,6 @@ app.use("/images", express.static(path.join(__dirname, "images")));
 app.use("/", indexRoutes); // Map the root route to the index routes
 
 app.use(errorHandler);
-
-
-// ۵. زمان‌بند کمپین‌های فروشگاه: هر روز ساعت 10 صبح اجرا می‌شود
-cron.schedule('0 10 * * *', () => {
-  console.log('Running daily shop campaign scheduler...');
-  runScheduledCampaigns();
-}, {
-  timezone: "Asia/Tehran"
-});
-
-// ۶. پردازشگر صف پیامک‌های فروشگاه: هر دقیقه اجرا می‌شود
-cron.schedule('* * * * *', () => {
-  processSmsQueue();
-});
-
 
 
 // Configure server port

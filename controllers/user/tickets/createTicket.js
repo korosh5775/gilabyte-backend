@@ -21,6 +21,12 @@ const createTicket = async (req, res, next) => {
       }]
     });
 
+    // 🟢 ارسال پیامک به ادمین (چون تیکت جدید است و کسی در اتاق نیست)
+    const { triggerSmsEvent } = require("../../../../utils/smsEventTrigger");
+    // اگر شماره ادمین در فایل .env تعریف شده است از آن استفاده کنید، یا شماره ثابت را جایگزین کنید
+    const adminPhone = process.env.ADMIN_PHONE_NUMBER || "09120000000"; 
+    triggerSmsEvent("NEW_TICKET_ADMIN", adminPhone, { ticketId: newTicket._id, subject });
+
     return res.status(201).json({ success: true, message: "تیکت شما با موفقیت ثبت شد.", data: newTicket });
   } catch (error) {
     next(error);

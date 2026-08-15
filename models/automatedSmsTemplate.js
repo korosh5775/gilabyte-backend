@@ -10,13 +10,17 @@ const automatedSmsTemplateSchema = new mongoose.Schema({
         required: true,
         unique: true,
         enum: [
-            'user_entered',        // پس از ورود موفق کاربر
-            'order_confirmed',     // پس از تایید سفارش
-            'order_shipped',       // پس از ارسال سفارش
-            'admin_new_order',     // اطلاع‌رسانی سفارش جدید به ادمین
+            'NEW_TICKET_ADMIN',
+            'TICKET_REPLY_ADMIN',
+            'TICKET_REPLY_USER',
+            'NEW_ORDER_USER',
+            'NEW_ORDER_ADMIN',
+            'NEW_USER_ADMIN',
+            'UPDATE_ORDER_USER',
+            'UPDATE_ORDER_ADMIN'
         ]
     },
-    name: {
+    name: { 
         type: String,
     },
 

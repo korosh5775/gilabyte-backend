@@ -1,7 +1,6 @@
 const User = require("../../../models/usersSchema"); // مسیر صحیح مدل User
 const jwt = require("jsonwebtoken");
 const otpGenerator = require("otp-generator");
-const TransactionalSmsService = require("../../../services/transactionalSmsService");
 const smsService = require("../../../utils/smsService");
 
 // حافظه موقت برای OTPها (توجه: برای پروداکشن از Redis استفاده شود)
@@ -169,6 +168,11 @@ if (!storedOtpData || String(storedOtpData.code).trim() !== String(otp).trim() |
         phoneNumber,
         birthDate: birthDate ? new Date(birthDate) : undefined,
       });
+
+      // 🟢 ارسال پیامک ثبت‌نام کاربر جدید به ادمین
+      const { triggerSmsEvent } = require("../../../../utils/smsEventTrigger");
+      const adminPhone = process.env.ADMIN_PHONE_NUMBER || "09120000000";
+      triggerSmsEvent("NEW_USER_ADMIN", adminPhone, { fullName, phoneNumber });
     }
 
     console.log('در حال ساخت توکن')
@@ -186,7 +190,7 @@ if (!storedOtpData || String(storedOtpData.code).trim() !== String(otp).trim() |
     // ===== بخش کلیدی و جدید: فعال‌سازی پیامک خوش‌آمدگویی =====
     // ===================================================================
     // ما به صورت غیرهمزمان (بدون await) آن را فراخوانی می‌کنیم تا پاسخ به کاربر را مسدود نکند
-     TransactionalSmsService.trigger("user_entered", { user: user }).catch(err => console.error("Welcome SMS error:", err.message));
+     // TransactionalSmsService.trigger("user_entered", { user: user }).catch(err => console.error("Welcome SMS error:", err.message));
     // ===================================================================
 
     // OTP استفاده شده را حذف کن

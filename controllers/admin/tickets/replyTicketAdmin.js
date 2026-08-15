@@ -26,6 +26,24 @@ const replyTicketAdmin = async (req, res, next) => {
     // 🟢 ۲. ارسال ticketId به همراه userId برای آپدیت دقیق لیست و بج پاکت نامه
     req.io.emit("new_ticket_reply", { userId: ticket.userId, ticketId: ticket._id });
 
+    // بررسی حضور کاربر در چت
+    let isUserInRoom = false;
+    if (req.io) {
+      const room = req.io.sockets.adapter.rooms.get(String(ticketId));
+      if (room && room.size > 0) { // حداقل یک نفر در اتاق هست، فرض می‌کنیم کاربر است
+        isUserInRoom = true;
+      }
+    }
+
+    if (!isUserInRoom) {
+      const User = require("../../../models/user"); // اضافه کردن مدل کاربر
+      const userDoc = await User.findById(ticket.userId);
+      if (userDoc && userDoc.phone) {
+        const { triggerSmsEvent } = require("../../../../utils/smsEventTrigger");
+        triggerSmsEvent("TICKET_REPLY_USER", userDoc.phone, { ticketId: ticket._id });
+      }
+    }
+
     return res.status(200).json({ success: true, message: "پاسخ ارسال شد.", data: ticket });
   } catch (error) {
     next(error);
