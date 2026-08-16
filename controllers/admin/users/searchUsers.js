@@ -14,6 +14,10 @@ const searchUsers = async (req, res) => {
       limit = 20,          // تعداد کاربران در هر صفحه
     } = req.query;
 
+    console.log("🟢 بک‌اند: ریکوئست جستجوی کاربران دریافت شد!");
+    console.log("🟢 بک‌اند: کوئری‌های دریافتی:", req.query);
+
+    
     // ساختن یک آبجکت فیلتر برای استفاده در کوئری نهایی
     const filter = {};
 

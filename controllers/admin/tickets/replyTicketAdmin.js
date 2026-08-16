@@ -1,5 +1,7 @@
 // controllers/admin/tickets/replyTicketAdmin.js
 const Ticket = require("../../../models/ticket");
+const { triggerSmsEvent } = require("../../../utils/smsEventTrigger");
+
 
 const replyTicketAdmin = async (req, res, next) => {
   try {
@@ -39,7 +41,6 @@ const replyTicketAdmin = async (req, res, next) => {
       const User = require("../../../models/user"); // اضافه کردن مدل کاربر
       const userDoc = await User.findById(ticket.userId);
       if (userDoc && userDoc.phone) {
-        const { triggerSmsEvent } = require("../../../../utils/smsEventTrigger");
         triggerSmsEvent("TICKET_REPLY_USER", userDoc.phone, { ticketId: ticket._id });
       }
     }

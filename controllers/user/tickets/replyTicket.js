@@ -1,4 +1,6 @@
 const Ticket = require("../../../models/ticket");
+const { triggerSmsEvent } = require("../../../utils/smsEventTrigger");
+
 
 const replyTicket = async (req, res, next) => {
   try {
@@ -48,7 +50,6 @@ const replyTicket = async (req, res, next) => {
         });
 
         // 🟢 ارسال پیامک به ادمین در صورت عدم حضور در چت
-        const { triggerSmsEvent } = require("../../../../utils/smsEventTrigger");
         const adminPhone = process.env.ADMIN_PHONE_NUMBER || "09120000000";
         triggerSmsEvent("TICKET_REPLY_ADMIN", adminPhone, { ticketId: stringTicketId });
       }

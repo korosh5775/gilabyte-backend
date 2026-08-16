@@ -1,64 +1,64 @@
 const AutomatedSmsTemplate = require("../models/automatedSmsTemplate");
-// فرض می‌کنیم سرویس ارسال پیامک الگو/پترن در فایل زیر یا مسیر مشابهی قرار دارد.
-// اگر مسیر یا نام تابع متفاوت است، لطفاً فقط همین خط یا تابع داخل block اصلی را تغییر دهید.
-const smsService = require("./smsService"); // یا require("../services/transactionalSmsService");
+const smsService = require("./smsService"); 
 
-/**
- * ==========================================
- * 🟢 راهنمای افزودن رویداد پیامکی جدید در آینده
- * ==========================================
- * برای اضافه کردن یک مورد جدید به سیستم پیامک خودکار، فقط 3 مرحله زیر را انجام دهید:
- * 
- * 1. نام رویداد جدید خود را تعیین کنید (مثلاً "FORGET_PASSWORD_USER").
- * 2. در پنل ادمین، یک قالب جدید بسازید و نام رویداد (Event Name) آن را دقیقاً همان کلمه "FORGET_PASSWORD_USER" بگذارید و کد قالب (Template Code) آن را از پنل پیامک وارد کنید.
- * 3. در کنترلر مورد نظر (مثلاً کنترلر فراموشی رمز)، این فایل را import کرده و خط زیر را فراخوانی کنید:
- * 
- *    const { triggerSmsEvent } = require("../../utils/smsEventTrigger");
- *    triggerSmsEvent("FORGET_PASSWORD_USER", userPhone, { code: 12345 });
- * 
- * سیستم به صورت خودکار قالب را از دیتابیس می‌خواند و در صورت فعال بودن، مقادیر (data) را به پترن پاس داده و پیامک را ارسال می‌کند.
- */
+// ==========================================
+// 🟢 نقشه متغیرها (Mapping)
+// در اینجا تعیین می‌کنیم که برای هر رویداد، ایندکس 0، 1 و... به کدام کلید از data اشاره دارد.
+// ==========================================
+// ==========================================
+// 🟢 نقشه متغیرها (Mapping) نهایی
+// ==========================================
+const eventVariableMapping = {
+  // 🛒 سفارشات
+  NEW_ORDER_USER: ["fullName", "serviceTitle", "planName"], //0: نام مشتری | 1: نام خدمت | 2: نام پلن
+  NEW_ORDER_ADMIN: ["serviceTitle", "fullName"],        // 0: نام خدمت | 1: نام مشتری
+  UPDATE_ORDER_USER: ["serviceTitle", "planName"],      // 0: نام خدمت | 1: نام پلن
+  UPDATE_ORDER_ADMIN: ["serviceTitle", "fullName"],     // 0: نام خدمت | 1: نام مشتری
+  
+  // 🎟️ تیکت‌ها
+  NEW_TICKET_ADMIN: ["ticketId", "subject"],            // 0: شناسه تیکت | 1: موضوع تیکت
+  TICKET_REPLY_USER: ["ticketId"],                      // 0: شناسه تیکت (کاربر فقط شناسه رو میگیره)
+  TICKET_REPLY_ADMIN: ["ticketId"],                     // 0: شناسه تیکت (ادمین فقط شناسه رو میگیره)
+  
+  // 👤 کاربران
+  NEW_USER_ADMIN: ["fullName", "phoneNumber"],          // 0: نام کاربر | 1: شماره موبایل
+};
 
-/**
- * ارسال پیامک خودکار بر اساس رویدادهای تعریف شده در دیتابیس
- * @param {String} eventName نام رویداد (مثلاً "NEW_TICKET_ADMIN")
- * @param {String} phoneNumber شماره موبایل گیرنده (اگر برای ادمین است، می‌توانید مستقیماً شماره ادمین را پاس دهید)
- * @param {Object} data متغیرهای مورد نیاز برای جایگذاری در قالب پیامک (اختیاری)
- */
 const triggerSmsEvent = async (eventName, phoneNumber, data = {}) => {
   try {
-    // 1. پیدا کردن قالب از دیتابیس
     const template = await AutomatedSmsTemplate.findOne({
       eventName: eventName,
-      isActive: true, // فقط در صورتی که قالب فعال باشد
+      isActive: true, 
     });
 
     if (!template || !template.patternCode) {
-      console.log(`[SMS Trigger] قالب فعال برای رویداد ${eventName} یافت نشد یا کد قالب ندارد.`);
-      return;
+      return; // قالب غیرفعال است یا کد ندارد
     }
 
-    if (!phoneNumber) {
-      console.log(`[SMS Trigger] شماره موبایل برای ارسال رویداد ${eventName} وارد نشده است.`);
-      return;
-    }
+    if (!phoneNumber) return;
 
-    // 2. ارسال پیامک با استفاده از سرویس موجود
-    // نکته: با توجه به اینکه فایل‌های سرویس پیامک شما خوانده نشده‌اند، 
-    // لطفاً در صورت نیاز نام تابع ارسال پترن (مثلاً sendPattern یا sendTransactionalSms) را 
-    // با نام واقعی تابع خود در فایل smsService یا transactionalSmsService جایگزین کنید.
-    
-    console.log(`[SMS Trigger] در حال ارسال پیامک برای رویداد ${eventName} به شماره ${phoneNumber} با کد قالب ${template.patternCode}`);
-    
-    if (smsService.sendPattern) {
-        await smsService.sendPattern(phoneNumber, template.patternCode, data);
-    } else if (smsService.sendTransactionalSms) {
-        await smsService.sendTransactionalSms(phoneNumber, template.patternCode, data);
+    // ==========================================
+    // 🟢 تبدیل هوشمند دیتای نام‌دار به دیتای عددی (0, 1, 2)
+    // ==========================================
+    const mapping = eventVariableMapping[eventName];
+    let numberedData = {};
+
+    if (mapping) {
+      // اگر رویداد در لیست مپینگ ما بود، کلمات را به اعداد تبدیل کن
+      mapping.forEach((key, index) => {
+        // خروجی می‌شود شبیه این: { "0": "طراحی سایت", "1": "علی احمدی" }
+        numberedData[index.toString()] = data[key] ? String(data[key]) : "-";
+      });
     } else {
-        // در صورتی که تابع شما ساختار دیگری دارد، آن را اینجا صدا بزنید
-        // مثال:
-        // await transactionalSmsService.send(phoneNumber, template.templateCode, data);
-        console.warn("[SMS Trigger] لطفاً تابع ارسال پیامک خود را در utils/smsEventTrigger.js مشخص کنید.");
+      // اگر رویداد جدیدی بود که در مپینگ بالا نبود، همون دیتای قبلی رو بفرست
+      numberedData = data;
+    }
+
+    console.log(`[SMS Trigger] در حال ارسال پیامک برای رویداد ${eventName} با دیتای:`, numberedData);
+    
+    // ارسال به سرویس اس‌ام‌اس
+    if (smsService.sendPattern) {
+        await smsService.sendPattern(phoneNumber, template.patternCode, numberedData);
     }
 
   } catch (error) {

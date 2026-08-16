@@ -218,4 +218,46 @@ router.get('/tickets/:ticketId', authenticated, hasRole(['admin', 'owner']), get
 router.post('/tickets/:ticketId/reply', authenticated, hasRole(['admin', 'owner']), replyTicketAdmin);
 router.patch('/tickets/:ticketId/status', authenticated, hasRole(['admin', 'owner']), toggleTicketStatus);
 
+// =========================================================================
+// ====================     Automated SMS Templates   ======================
+// =========================================================================
+const {
+  getAllTemplates,
+  getTemplateById,
+  updateTemplate,
+  updateTemplateStatus
+} = require("../../../controllers/admin/sms/automatedSms");
+
+// دریافت لیست تمام رویدادها و قالب‌های پیامکی
+router.get(
+  '/automated-sms', 
+  authenticated, 
+  hasRole(['admin', 'owner']), 
+  getAllTemplates
+);
+
+// دریافت اطلاعات تکی یک قالب پیامکی (در صورت نیاز)
+router.get(
+  '/automated-sms/:id', 
+  authenticated, 
+  hasRole(['admin', 'owner']), 
+  getTemplateById
+);
+
+// ویرایش کد پترن (patternCode) و فعال/غیرفعال کردن قالب
+router.put(
+  '/automated-sms/:id', 
+  authenticated, 
+  hasRole(['admin', 'owner']), 
+  updateTemplate
+);
+
+// تغییر سریع وضعیت یک قالب (سوییچ خاموش و روشن در فرانت‌اند)
+router.patch(
+  '/automated-sms/status/:id', 
+  authenticated, 
+  hasRole(['admin', 'owner']), 
+  updateTemplateStatus
+);
+
 module.exports = router;

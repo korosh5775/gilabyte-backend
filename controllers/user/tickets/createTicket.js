@@ -1,5 +1,7 @@
 // controllers/user/tickets/createTicket.js
 const Ticket = require("../../../models/ticket");
+    const { triggerSmsEvent } = require("../../../utils/smsEventTrigger");
+
 
 const createTicket = async (req, res, next) => {
   try {
@@ -22,7 +24,6 @@ const createTicket = async (req, res, next) => {
     });
 
     // 🟢 ارسال پیامک به ادمین (چون تیکت جدید است و کسی در اتاق نیست)
-    const { triggerSmsEvent } = require("../../../../utils/smsEventTrigger");
     // اگر شماره ادمین در فایل .env تعریف شده است از آن استفاده کنید، یا شماره ثابت را جایگزین کنید
     const adminPhone = process.env.ADMIN_PHONE_NUMBER || "09120000000"; 
     triggerSmsEvent("NEW_TICKET_ADMIN", adminPhone, { ticketId: newTicket._id, subject });

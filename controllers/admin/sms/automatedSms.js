@@ -7,32 +7,32 @@ const defaultTemplates = {
     'user_entered': {
         name: "ورود موفق",
         description: 'ارسال پیامک پس از ورود یا اولین ثبت‌نام موفق کاربر در فروشگاه.',
-        template: 'سلام [CustomerName] عزیز! به فروشگاه ما خوش آمدید. ورود شما با موفقیت انجام شد.',
+        template: 'سلام #CustomerName# عزیز! به فروشگاه ما خوش آمدید. ورود شما با موفقیت انجام شد.',
     },
     'order_confirmed': {
         name: "تایید سفارش",
         description: 'ارسال پیامک پس از پرداخت موفق و تایید سفارش.',
-        template: 'سفارش شماره [OrderId] شما با موفقیت ثبت و پرداخت شد. سفارش شما در حال بررسی است.',
+        template: 'سفارش شماره #OrderId# شما با موفقیت ثبت و پرداخت شد. سفارش شما در حال بررسی است.',
     },
     'order_shipped': {
         name: "ارسال سفارش",
         description: 'ارسال پیامک پس از ارسال سفارش توسط ادمین.',
-        template: 'سفارش شماره [OrderId] شما ارسال شد. کد رهگیری: [TrackingCode].',
+        template: 'سفارش شماره #OrderId# شما ارسال شد. کد رهگیری: #TrackingCode#.',
     },
     'admin_new_order': {
         name: "اطلاع‌رسانی سفارش جدید به ادمین",
         description: 'ارسال پیامک به ادمین پس از ثبت و پرداخت موفق سفارش جدید.',
-        template: 'سفارش جدید ثبت شد! سفارش: [OrderId] مشتری: [CustomerFullName] مبلغ: [TotalPrice] تومان لینک پنل: [AdminPanelUrl]',
+        template: 'سفارش جدید ثبت شد! سفارش: #OrderId# مشتری: #CustomerFullName# مبلغ: #TotalPrice# تومان لینک پنل: #AdminPanelUrl#',
     },
 };
  
 
 /**
  * @desc    دریافت لیست تمام قالب‌های فروشگاه. اگر قالبی وجود نداشت، آن را با مقادیر پیش‌فرض می‌سازد.
- * @route   GET /admin/shop/automated-sms
+ * @route   GET /admin//automated-sms
  * @access  Private (Admin)
  */
-exports.getAllShopTemplates = async (req, res, next) => {
+exports.getAllTemplates = async (req, res, next) => {
     try {
         // ۱. لیست تمام رویدادهای تعریف شده در enum مدل را می‌خوانیم
         const definedEvents = AutomatedSmsTemplate.schema.path('eventName').enumValues;
@@ -69,10 +69,10 @@ exports.getAllShopTemplates = async (req, res, next) => {
 
 /**
  * @desc    دریافت جزئیات یک قالب خاص با ID
- * @route   GET /admin/shop/automated-sms/:id
+ * @route   GET /admin//automated-sms/:id
  * @access  Private (Admin)
  */
-exports.getShopTemplateById = async (req, res, next) => {
+exports.getTemplateById = async (req, res, next) => {
     try {
         const template = await AutomatedSmsTemplate.findById(req.params.id);
 
@@ -91,12 +91,12 @@ exports.getShopTemplateById = async (req, res, next) => {
 
 /**
  * @desc    به‌روزرسانی یک قالب پیامک خودکار فروشگاه
- * @route   PUT /admin/shop/automated-sms/:id
+ * @route   PUT /admin//automated-sms/:id
  * @access  Private (Admin)
  */
-exports.updateShopTemplate = async (req, res, next) => {
+exports.updateTemplate = async (req, res, next) => {
     try {
-        const { template, isActive } = req.body;
+        const { patternCode, isActive } = req.body;
         const templateId = req.params.id;
 
         if (!template || template.trim() === '') {
@@ -114,7 +114,7 @@ exports.updateShopTemplate = async (req, res, next) => {
         }
 
         // فقط فیلدهایی که ادمین اجازه تغییر آن‌ها را دارد، به‌روزرسانی می‌شوند.
-        existingTemplate.template = template;
+        existingTemplate.patternCode = patternCode;
         existingTemplate.isActive = isActive;
 
         const updatedTemplate = await existingTemplate.save();
@@ -130,10 +130,10 @@ exports.updateShopTemplate = async (req, res, next) => {
 
 /**
  * @desc    به‌روزرسانی یک قالب پیامک خودکار فروشگاه
- * @route   patch /admin/shop/automated-sms/status/:id
+ * @route   patch /admin//automated-sms/status/:id
  * @access  Private (Admin)
  */
-exports.updateShopTemplateStatus = async (req, res, next) => {
+exports.updateTemplateStatus = async (req, res, next) => {
     try {
         const { isActive } = req.body;
         const templateId = req.params.id;
