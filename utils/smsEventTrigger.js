@@ -8,18 +8,31 @@ const triggerSmsEvent = async (eventName, phoneNumber, data = {}) => {
       isActive: true, 
     });
 
-    // اگر قالب غیرفعال است یا کد پترن ندارد، خارج شو
-    if (!template || !template.patternCode) {
-      return; 
-    }
-
+    if (!template || !template.patternCode) return; 
     if (!phoneNumber) return;
 
-    console.log(`[SMS Trigger] در حال ارسال پیامک برای رویداد ${eventName} با دیتای:`, data);
+    // =========================================================
+    // 🟢 فیلتر جادویی: رفع محدودیت ۲۵ کاراکتری SMS.ir
+    // =========================================================
+    const safeData = {};
+    for (const key in data) {
+      if (data.hasOwnProperty(key)) {
+        let value = String(data[key] || "-"); // تبدیل به رشته
+        
+        // اگر متن بیشتر از ۲۵ کاراکتر بود، آن را ببر و آخرش "…" بگذار
+        if (value.length > 25) {
+          value = value.substring(0, 21) + "…"; 
+        }
+        
+        safeData[key] = value;
+      }
+    }
+
+    console.log(`[SMS Trigger] ارسال پیامک برای ${eventName} با دیتای ایمن:`, safeData);
     
-    // 🟢 جادوی کار اینجاست: ما دقیقاً همون آبجکت data رو بدون هیچ تغییری به سامانه می‌فرستیم!
+    // ارسال دیتای فیلتر شده (safeData) به سرویس اس‌ام‌اس
     if (smsService.sendPattern) {
-        await smsService.sendPattern(phoneNumber, template.patternCode, data);
+        await smsService.sendPattern(phoneNumber, template.patternCode, safeData);
     }
 
   } catch (error) {
