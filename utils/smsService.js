@@ -139,7 +139,7 @@ async sendSingle(to, text) {
 
       console.log("parameters are:" , parameters)
 
-      const response = await this.http.post("/send/verifyy", {
+      const response = await this.http.post("/send/verify", {
         mobile: to,
         templateId: parseInt(patternId),
         parameters,

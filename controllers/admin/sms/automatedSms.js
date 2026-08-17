@@ -2,66 +2,72 @@
 
 const AutomatedSmsTemplate = require('../../../models/automatedSmsTemplate');
 
-// یک آبجکت برای نگهداری قالب‌های پیش‌فرض فروشگاه.
+// 🟢 ۱. اصلاح آبجکت پیش‌فرض: دقیقاً منطبق با Enum های مدل شما
 const defaultTemplates = {
-    'user_entered': {
-        name: "ورود موفق",
-        description: 'ارسال پیامک پس از ورود یا اولین ثبت‌نام موفق کاربر در فروشگاه.',
-        template: 'سلام #CustomerName# عزیز! به فروشگاه ما خوش آمدید. ورود شما با موفقیت انجام شد.',
+    'NEW_ORDER_USER': {
+        name: "ثبت سفارش موفق (به کاربر)",
+        description: "ارسال پیامک به کاربر پس از اینکه درخواست/سفارش جدیدی ثبت می‌کند.",
     },
-    'order_confirmed': {
-        name: "تایید سفارش",
-        description: 'ارسال پیامک پس از پرداخت موفق و تایید سفارش.',
-        template: 'سفارش شماره #OrderId# شما با موفقیت ثبت و پرداخت شد. سفارش شما در حال بررسی است.',
+    'NEW_ORDER_ADMIN': {
+        name: "سفارش جدید (به ادمین)",
+        description: "اطلاع‌رسانی به ادمین سایت هنگام ثبت درخواست جدید توسط کاربر.",
     },
-    'order_shipped': {
-        name: "ارسال سفارش",
-        description: 'ارسال پیامک پس از ارسال سفارش توسط ادمین.',
-        template: 'سفارش شماره #OrderId# شما ارسال شد. کد رهگیری: #TrackingCode#.',
+    'UPDATE_ORDER_USER': {
+        name: "تغییر وضعیت سفارش (به کاربر)",
+        description: "ارسال پیامک به کاربر هنگامی که وضعیت درخواست او تغییر می‌کند (مثلاً تغییر پلن).",
     },
-    'admin_new_order': {
-        name: "اطلاع‌رسانی سفارش جدید به ادمین",
-        description: 'ارسال پیامک به ادمین پس از ثبت و پرداخت موفق سفارش جدید.',
-        template: 'سفارش جدید ثبت شد! سفارش: #OrderId# مشتری: #CustomerFullName# مبلغ: #TotalPrice# تومان لینک پنل: #AdminPanelUrl#',
+    'UPDATE_ORDER_ADMIN': {
+        name: "تغییر وضعیت سفارش (به ادمین)",
+        description: "اطلاع‌رسانی به ادمین هنگام تغییر وضعیت یک سفارش.",
     },
+    'NEW_TICKET_ADMIN': {
+        name: "تیکت جدید (به ادمین)",
+        description: "اطلاع‌رسانی به ادمین هنگام ثبت تیکت پشتیبانی جدید توسط کاربر.",
+    },
+    'TICKET_REPLY_USER': {
+        name: "پاسخ تیکت از پشتیبانی (به کاربر)",
+        description: "ارسال پیامک به کاربر هنگامی که ادمین به تیکت او پاسخ می‌دهد.",
+    },
+    'TICKET_REPLY_ADMIN': {
+        name: "ثبت پاسخ در تیکت (به ادمین)",
+        description: "اطلاع‌رسانی به ادمین هنگامی که کاربر در یک تیکت موجود، پیام جدیدی می‌گذارد.",
+    },
+    'NEW_USER_ADMIN': {
+        name: "ثبت نام کاربر جدید (به ادمین)",
+        description: "اطلاع‌رسانی به ادمین هنگام ثبت‌نام یک کاربر جدید در سایت.",
+    }
 };
- 
 
 /**
- * @desc    دریافت لیست تمام قالب‌های فروشگاه. اگر قالبی وجود نداشت، آن را با مقادیر پیش‌فرض می‌سازد.
- * @route   GET /admin//automated-sms
+ * @desc    دریافت لیست تمام قالب‌های سایت. اگر قالبی وجود نداشت، آن را با مقادیر پیش‌فرض می‌سازد.
+ * @route   GET /admin/automated-sms
  * @access  Private (Admin)
  */
 exports.getAllTemplates = async (req, res, next) => {
     try {
-        // ۱. لیست تمام رویدادهای تعریف شده در enum مدل را می‌خوانیم
         const definedEvents = AutomatedSmsTemplate.schema.path('eventName').enumValues;
 
-        // ۲. قالب‌های موجود در دیتابیس را پیدا می‌کنیم
         const existingTemplates = await AutomatedSmsTemplate.find({});
         const existingEventNames = existingTemplates.map(t => t.eventName);
 
-        // ۳. رویدادهایی که هنوز در دیتابیس ساخته نشده‌اند را پیدا می‌کنیم
         const missingEvents = definedEvents.filter(e => !existingEventNames.includes(e));
 
-        // ۴. اگر رویداد گمشده‌ای وجود داشت، آن را می‌سازیم
         if (missingEvents.length > 0) {
             const newTemplatesData = missingEvents.map(eventName => ({
                 eventName,
-                ...defaultTemplates[eventName]
+                name: defaultTemplates[eventName]?.name || eventName,
+                description: defaultTemplates[eventName]?.description || "بدون توضیحات",
+                patternCode: "", // در ابتدا خالی است تا ادمین خودش پر کند
+                isActive: false  // به صورت پیش‌فرض غیرفعال است
             }));
 
-            // با استفاده از insertMany، تمام قالب‌های جدید را در یک درخواست واحد می‌سازیم
             await AutomatedSmsTemplate.insertMany(newTemplatesData);
 
-            // پس از ساخت، لیست کامل را دوباره می‌خوانیم تا به فرانت‌اند ارسال کنیم
             const allTemplates = await AutomatedSmsTemplate.find({}).sort('eventName');
             return res.status(200).json(allTemplates);
         }
 
-        // اگر هیچ رویداد گمشده‌ای نبود، فقط لیست موجود را برمی‌گردانیم
         res.status(200).json(existingTemplates);
-
     } catch (err) {
         next(err);
     }
@@ -69,7 +75,7 @@ exports.getAllTemplates = async (req, res, next) => {
 
 /**
  * @desc    دریافت جزئیات یک قالب خاص با ID
- * @route   GET /admin//automated-sms/:id
+ * @route   GET /admin/automated-sms/:id
  * @access  Private (Admin)
  */
 exports.getTemplateById = async (req, res, next) => {
@@ -90,8 +96,8 @@ exports.getTemplateById = async (req, res, next) => {
 };
 
 /**
- * @desc    به‌روزرسانی یک قالب پیامک خودکار فروشگاه
- * @route   PUT /admin//automated-sms/:id
+ * @desc    به‌روزرسانی یک قالب پیامک خودکار
+ * @route   PUT /admin/automated-sms/:id
  * @access  Private (Admin)
  */
 exports.updateTemplate = async (req, res, next) => {
@@ -99,8 +105,9 @@ exports.updateTemplate = async (req, res, next) => {
         const { patternCode, isActive } = req.body;
         const templateId = req.params.id;
 
-        if (!template || template.trim() === '') {
-            const error = new Error('متن قالب پیامک نمی‌تواند خالی باشد.');
+        // 🟢 ۲. ارور مربوط به متغیر ناموجود برطرف شد و روی patternCode اعمال شد
+        if (patternCode !== undefined && patternCode.trim() === '' && isActive) {
+            const error = new Error('اگر قالب فعال است، کد پترن (Body ID) نمی‌تواند خالی باشد.');
             error.statusCode = 400;
             throw error;
         }
@@ -113,7 +120,6 @@ exports.updateTemplate = async (req, res, next) => {
             throw error;
         }
 
-        // فقط فیلدهایی که ادمین اجازه تغییر آن‌ها را دارد، به‌روزرسانی می‌شوند.
         existingTemplate.patternCode = patternCode;
         existingTemplate.isActive = isActive;
 
@@ -126,11 +132,9 @@ exports.updateTemplate = async (req, res, next) => {
     }
 };
 
-
-
 /**
- * @desc    به‌روزرسانی یک قالب پیامک خودکار فروشگاه
- * @route   patch /admin//automated-sms/status/:id
+ * @desc    به‌روزرسانی سریع وضعیت (روشن/خاموش) قالب پیامک
+ * @route   PATCH /admin/automated-sms/status/:id
  * @access  Private (Admin)
  */
 exports.updateTemplateStatus = async (req, res, next) => {
@@ -145,10 +149,15 @@ exports.updateTemplateStatus = async (req, res, next) => {
             error.statusCode = 404;
             throw error;
         }
+        
+        // جلوگیری از فعال کردن قالبی که کد پترن ندارد
+        if (isActive === true && (!existingTemplate.patternCode || existingTemplate.patternCode.trim() === '')) {
+             const error = new Error('ابتدا کد پترن را وارد کنید، سپس قالب را فعال نمایید.');
+             error.statusCode = 400;
+             throw error;
+        }
 
-        // فقط فیلدهایی که ادمین اجازه تغییر آن‌ها را دارد، به‌روزرسانی می‌شوند.
         existingTemplate.isActive = isActive;
-
         const updatedTemplate = await existingTemplate.save();
 
         res.status(200).json(updatedTemplate);
