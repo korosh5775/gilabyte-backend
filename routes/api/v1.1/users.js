@@ -7,6 +7,9 @@ const express = require("express");
  // Data validation middleware
 const authenticated = require("../../../middlewares/authorization"); // Authentication middleware
 
+const { upload, handleError } = require("../../../utils/multer");
+
+
 // Create an Express router
 // ------------------------------------------------
 const router = express.Router();
