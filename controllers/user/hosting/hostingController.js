@@ -36,9 +36,9 @@ exports.getMyHostingInfo = async (req, res, next) => {
  */
 exports.uploadReceipt = async (req, res, next) => {
     try {
+        
         const { amount, trackingCode } = req.body;
         
-        // فرض بر این است که از میدل‌ور Multer استفاده کرده‌اید
         if (!req.files || !req.files.receiptImage) {
             const error = new Error("لطفاً تصویر فیش واریزی را آپلود کنید.");
             error.statusCode = 400;
@@ -53,8 +53,8 @@ exports.uploadReceipt = async (req, res, next) => {
             amount: Number(amount),
             trackingCode: trackingCode || ""
         });
+        
 
-        // 🟢 ارسال پیامک به ادمین که فیش جدید آپلود شده
         const adminPhone = process.env.ADMIN_PHONE_NUMBER || "09120000000";
         triggerSmsEvent("NEW_RECEIPT_ADMIN", adminPhone, { 
             fullName: req.user.fullName, 
@@ -67,6 +67,7 @@ exports.uploadReceipt = async (req, res, next) => {
             receipt: newReceipt
         });
     } catch (error) {
+        console.error("❌ بک‌اند - ارور اصلی:", error); // این لاگ خیلی مهمه!
         next(error);
     }
 };

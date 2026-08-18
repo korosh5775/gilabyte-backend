@@ -5,7 +5,7 @@ const getUserDetails = async (req, res, next) => {
   try {
     const phoneNumber = req.user.phoneNumber;
     const user = await User.findOne({ phoneNumber }).select("-__v -password");
-
+console.log(`user is ${user}`);
     if (!user) {
       const error = new Error("کاربری با این مشخصات یافت نشد");
       error.status = 404;

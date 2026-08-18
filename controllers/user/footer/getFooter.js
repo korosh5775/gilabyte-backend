@@ -4,7 +4,6 @@ const Footer = require("../../../models/footerSchema");
 const getFooter = async (req, res, next) => {
   try {
     const footer = await Footer.findOne(); 
-    console.log(footer)
     if (!footer) {
       const error = new Error("Footer not found");
       error.statusCode = 404;
