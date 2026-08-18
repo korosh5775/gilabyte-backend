@@ -95,6 +95,13 @@ router.post(
 );
 
 
+
+const { getBankInfo } = require("../../../controllers/user/setting/settingController");
+
+
+router.get('/bank-info', authenticated, getBankInfo);
+
+
 // Export the router
 // ------------------------------------------------
 module.exports = router;

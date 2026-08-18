@@ -286,4 +286,13 @@ router.patch(
 
 // 🟢 یک روت GET هم برای گرفتن لیست کاربران و فیش‌ها نیاز داریم:
 router.get("/hosting/dashboard", authenticated, hasRole(['admin', 'owner']), getHostingDashboard);
+
+
+
+const { updateBankInfo } = require("../../../controllers/admin/setting/settingController");
+
+
+// روت آپدیت اطلاعات: علاوه بر لاگین بودن، باید حتماً ادمین یا مالک باشه
+router.put('/bank-info', authenticated, hasRole(['admin', 'owner']), updateBankInfo);
+
 module.exports = router;
