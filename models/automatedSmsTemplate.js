@@ -17,7 +17,12 @@ const automatedSmsTemplateSchema = new mongoose.Schema({
             'NEW_ORDER_ADMIN',
             'NEW_USER_ADMIN',
             'UPDATE_ORDER_USER',
-            'UPDATE_ORDER_ADMIN'
+            'UPDATE_ORDER_ADMIN',
+            'NEW_RECEIPT_ADMIN',
+            'RECEIPT_APPROVED_USER',
+            'RECEIPT_REJECTED_USER',
+            'HOSTING_WARNING_USER',
+            'HOSTING_SUSPENDED_USER',
         ]
     },
     name: { 

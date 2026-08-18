@@ -8,6 +8,7 @@ const cron = require('node-cron');
 const indexRoutes = require("./routes/index"); // Import the main application routes
 const bodyParser = require("body-parser"); // Import body-parser middleware for parsing request bodies
 require("./utils/connection"); // Establish database connection
+require('./utils/hostingCronJob')();
 const errorHandler = require('./middlewares/errorrHandler');
 const cookieParser = require("cookie-parser"); // Import cookie-parser
 const http = require("http");

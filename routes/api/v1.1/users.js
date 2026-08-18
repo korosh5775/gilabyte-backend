@@ -77,6 +77,21 @@ router.post('/tickets/:ticketId/reply', authenticated, replyTicket);
 router.patch('/tickets/:ticketId/close', authenticated, closeTicket);
 
 
+const hostingController = require("../../../controllers/user/hosting/hostingController");
+
+// دریافت اطلاعات مالی کاربر
+router.get("/hosting", authenticated, hostingController.getMyHostingInfo);
+
+// آپلود فیش واریزی (استفاده از multer برای فیلد receiptImage)
+router.post(
+  "/hosting/receipt", 
+  authenticated, 
+  upload.fields([{ name: "receiptImage", maxCount: 1 }]), 
+  handleError,
+  hostingController.uploadReceipt
+);
+
+
 // Export the router
 // ------------------------------------------------
 module.exports = router;

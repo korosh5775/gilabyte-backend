@@ -37,6 +37,9 @@ const getUploadPath = (fieldname) => {
     case "bannerImageDark":
       uploadPath += "banner/";
       break;
+      case "receiptImage":
+      uploadPath += "receipts/hosting/";
+      break;
     default:
       uploadPath += "others/";
   }

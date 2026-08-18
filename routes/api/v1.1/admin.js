@@ -260,4 +260,30 @@ router.patch(
   updateTemplateStatus
 );
 
+
+
+const {updateUserBilling, processReceipt, getHostingDashboard} = require("../../../controllers/admin/hosting/adminHostingController");
+
+// =========================================================================
+// ====================     Hosting & Billing (مدیریت مالی)  ===============
+// =========================================================================
+
+// ویرایش تنظیمات مالی کاربر (هزینه روزانه، شارژ دستی)
+router.patch(
+  "/hosting/user/:userId", 
+  authenticated, 
+  hasRole(['admin', 'owner']), 
+  updateUserBilling
+);
+
+// تایید یا رد فیش واریزی
+router.patch(
+  "/hosting/receipt/:receiptId", 
+  authenticated, 
+  hasRole(['admin', 'owner']), 
+  processReceipt
+);
+
+// 🟢 یک روت GET هم برای گرفتن لیست کاربران و فیش‌ها نیاز داریم:
+router.get("/hosting/dashboard", authenticated, hasRole(['admin', 'owner']), getHostingDashboard);
 module.exports = router;
