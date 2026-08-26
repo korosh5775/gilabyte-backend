@@ -6,6 +6,9 @@ const express = require("express"); // Express framework
 // ------------------------------------------------
 const router = express.Router();
 
+const { generateSitemap } = require("../controllers/user/seo/sitemap");
+router.get('/sitemap.xml', generateSitemap);
+
 // Define routes for users v1.1
 // ------------------------------------------------
 const usersV_1_1 = require("./api/v1.1/users"); // Import the users v1.1 module

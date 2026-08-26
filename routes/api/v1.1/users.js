@@ -102,6 +102,12 @@ const { getBankInfo } = require("../../../controllers/user/setting/settingContro
 router.get('/bank-info', authenticated, getBankInfo);
 
 
+
+
+
+
+
+
 // Export the router
 // ------------------------------------------------
 module.exports = router;
