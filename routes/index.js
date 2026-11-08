@@ -28,6 +28,13 @@ router.use("/api/v1.1/admin", adminV1_1); // Map the /api/v1.1/admin route to th
 const sharedV1_1 = require('./api/v1.1/shared'); // Import the shared v1.1 module
 router.use("/api/v1.1/shared", sharedV1_1); // Map the /api/v1.1/shared route to the adminV1_1 module
 
+
+// Define routes for moo (Barber App Integration) v1.1
+// ------------------------------------------------
+const mooV1_1 = require('./api/v1.1/moo');
+router.use("/api/v1.1/moo", mooV1_1);
+
+
 // Export the router
 // ------------------------------------------------
 module.exports = router;

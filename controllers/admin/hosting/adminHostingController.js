@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 const User = require("../../../models/usersSchema");
 const HostingReceipt = require("../../../models/hostingReceiptSchema");
 const { triggerSmsEvent } = require("../../../utils/smsEventTrigger");
@@ -8,7 +9,7 @@ const { triggerSmsEvent } = require("../../../utils/smsEventTrigger");
  */
 exports.updateUserBilling = async (req, res, next) => {
     try {
-        const { dailyCost, addBalance, isActive } = req.body;
+        const { dailyCost, addBalance, isActive, domain } = req.body;
         const user = await User.findById(req.params.userId);
 
         if (!user) {
@@ -17,13 +18,21 @@ exports.updateUserBilling = async (req, res, next) => {
             throw error;
         }
 
-        // اگر ادمین مبلغ شارژ دستی وارد کرده بود
-        if (addBalance && Number(addBalance) > 0) {
+        if (domain !== undefined) {
+            user.hosting.domain = domain
+                .toLowerCase()
+                .trim()
+                .replace(/^https?:\/\//, "")
+                .replace(/^www\./, "")
+                .split("/")[0];
+        }
+
+        // 🟢 امکان وارد کردن عدد مثبت (افزایش شارژ) یا منفی (کسر دستی شارژ)
+        if (addBalance && Number(addBalance) !== 0) {
             user.hosting.balance += Number(addBalance);
             user.hosting.lastChargeDate = new Date();
         }
 
-        // اگر هزینه روزانه تغییر کرده بود
         if (dailyCost !== undefined && Number(dailyCost) !== user.hosting.dailyCost) {
             user.hosting.dailyCost = Number(dailyCost);
             user.hosting.lastDailyCostUpdate = new Date();
@@ -31,6 +40,11 @@ exports.updateUserBilling = async (req, res, next) => {
 
         if (isActive !== undefined) {
             user.hosting.isActive = isActive;
+        }
+
+        // 🔑 اگر کاربر هنوز کلید اتصال به اپ آرایشگاه ندارد، خودکار برایش بساز
+        if (!user.hosting.licenseKey) {
+            user.hosting.licenseKey = "gb_" + crypto.randomBytes(16).toString("hex");
         }
 
         await user.save();
@@ -66,27 +80,23 @@ exports.processReceipt = async (req, res, next) => {
             throw error;
         }
 
-        receipt.status = status; // 'approved' یا 'rejected'
+        receipt.status = status;
         if (adminNote) receipt.adminNote = adminNote;
 
-        // اگر تایید شد، پول را به حساب کاربر اضافه کن
         if (status === 'approved') {
-            // ممکن است ادمین بخواهد مبلغ را ویرایش کند (مثلا کاربر زده 100 تومن ولی 90 تومن واریز کرده)
             const finalAmount = approvedAmount ? Number(approvedAmount) : receipt.amount;
             receipt.amount = finalAmount;
             
             receipt.user.hosting.balance += finalAmount;
             receipt.user.hosting.lastChargeDate = new Date();
-            receipt.user.hosting.isActive = true; // سرویس خودکار فعال شود
+            receipt.user.hosting.isActive = true;
             await receipt.user.save();
 
-            // 🟢 پیامک تایید به کاربر
             triggerSmsEvent("RECEIPT_APPROVED_USER", receipt.user.phoneNumber, { 
                 amount: finalAmount 
             });
         } 
         else if (status === 'rejected') {
-            // 🔴 پیامک رد شدن فیش به کاربر
             triggerSmsEvent("RECEIPT_REJECTED_USER", receipt.user.phoneNumber, { 
                 amount: receipt.amount 
             });
@@ -103,17 +113,21 @@ exports.processReceipt = async (req, res, next) => {
     }
 };
 
-// اضافه کردن به فایل: controllers/admin/hosting/adminHostingController.js
+/**
+ * @desc    دریافت داشبورد مالی ادمین
+ * @route   GET /admin/hosting/dashboard
+ */
 exports.getHostingDashboard = async (req, res, next) => {
     try {
-        // دریافت فیش‌های در انتظار بررسی
-        const pendingReceipts = await HostingReceipt.find({ status: 'pending' }).populate('user', 'fullName phoneNumber').sort({ createdAt: -1 });
+        const pendingReceipts = await HostingReceipt.find({ status: 'pending' })
+            .populate('user', 'fullName phoneNumber')
+            .sort({ createdAt: -1 });
         
-        // دریافت کاربرانی که سرویس‌شان فعال است یا موجودی/هزینه دارند
+        // 🟢 تغییر $gt: 0 به $ne: 0 تا کاربران دارای موجودی منفی (بدهکار) هم نمایش داده شوند
         const users = await User.find({ 
             $or: [
                 { 'hosting.isActive': true },
-                { 'hosting.balance': { $gt: 0 } },
+                { 'hosting.balance': { $ne: 0 } },
                 { 'hosting.dailyCost': { $gt: 0 } }
             ]
         }).select('fullName phoneNumber hosting status');

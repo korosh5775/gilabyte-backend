@@ -51,7 +51,9 @@ const UserSchema = mongoose.Schema({
         lastDailyCostUpdate: { type: Date },
 
         // وضعیت سرویس (اگر شارژ تمام شود، کرون جاب این را false می‌کند تا ادمین بداند)
-        isActive: { type: Boolean, default: false }
+        isActive: { type: Boolean, default: false },
+        domain: { type: String, trim: true, lowercase: true }
+
     }
 }, { timestamps: true });
 

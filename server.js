@@ -88,19 +88,25 @@ app.use((req, res, next) => {
   next();
 });
 
-
-
 app.use(cors({
   origin: function (origin, callback) {
-    // اگر درخواست از سمت سرور به سرور باشد (مثل Postman یا Cron)، مقدار origin وجود ندارد (null)
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
+    // اجازه دسترسی بدون خطای CORS
+    callback(null, true);
   },
   credentials: true
 }));
+
+// app.use(cors({
+//   origin: function (origin, callback) {
+//     // اگر درخواست از سمت سرور به سرور باشد (مثل Postman یا Cron)، مقدار origin وجود ندارد (null)
+//     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+//   credentials: true
+// }));
 
 app.use(bodyParser.json()); // Parse JSON request bodies
 app.use(cookieParser()); // Parse cookies
